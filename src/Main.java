@@ -3,12 +3,8 @@ import java.io.*;
 public class Main {
     public static void main(String[] args) {
         System.out.println("Hello and welcome!");
-        /*
-        *Создать с помощью класса File папку ( проверить что она создана), в ней создать 2 файла
-        *(так же проверить что они созданы), записать в 1 из файлов фразу "Java world". Далее используя FileWriter/Reader или
-        *FileInput/OutputStream ( на ваш выбор), считать с 1-го файла фразу Java World и результат записать в другой файл.
-        *После удалить оба файла используя класс File и удалить директорию.
-         */
+        System.out.println();
+        System.out.println("First part");
         String str = "Java World";
         File dir = new File("C:\\Java");
         boolean createDir = dir.mkdir();
@@ -32,29 +28,44 @@ public class Main {
         if (file1.exists() && file2.exists()){
             System.out.println("Files exists");
         }
-
-        try(FileWriter writeFirstFile = new FileWriter("C:\\Java\\file1.txt", false)){
-            writeFirstFile.write(str);
-        }catch (IOException e){
+        try(FileOutputStream fos = new FileOutputStream("C:\\Java\\file1.txt")){
+            fos.write(str.getBytes());
+        }
+        catch (IOException e){
             throw new RuntimeException(e);
         }
-        try(FileReader readFirstFile = new FileReader("C:\\Java\\file1.txt")){
-            int i;
-            while ((i = readFirstFile.read()) != -1){
-                System.out.print((char) i);
+        try(FileInputStream fis = new FileInputStream("C:\\Java\\file1.txt");
+        FileOutputStream fos = new FileOutputStream("C:\\Java\\file2.txt")){
+            byte[] buffer = new byte[fis.available()];
+            int count;
+            while((count = fis.read(buffer)) != -1){
+                fos.write(buffer, 0, buffer.length);
             }
-
-        }catch (IOException e){
+        }
+        catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-
-
-//        if(file1.delete() && file2.delete()){
-//            System.out.println("Files successfully deleted");
-//        }
-//        if(dir.delete()){
-//            System.out.println("Directory successfully deleted");
-//        }
+        if(file1.delete() && file2.delete()){
+            System.out.println("Files successfully deleted");
+        }
+        if(dir.delete()){
+            System.out.println("Directory successfully deleted");
+        }
+        System.out.println();
+        System.out.println("Second part");
+        try(ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("cat.dat"))){
+            Cat cat = new Cat("Aki", 5, 2.3);
+            oos.writeObject(cat);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        try(ObjectInputStream ois = new ObjectInputStream(new FileInputStream("cat.dat"))){
+            Cat c = (Cat) ois.readObject();
+            System.out.println(c);
+        }
+        catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
